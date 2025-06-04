@@ -10,6 +10,7 @@ import PagosScreen from "./screens/nav/PagosScreen";
 import LoginScreen from "./screens/LoginScreen";
 import RegisterScreen from "./screens/RegisterScreen";
 import AgendarCitaScreen from "./screens/nav/AgendarCitaScreen";
+import EditProfileScreen from "./screens/EditProfileScreen";
 
 import { Ionicons } from "@expo/vector-icons";
 
@@ -68,6 +69,12 @@ export default function App() {
           component={AgendarCitaScreen}
           options={{ headerShown: true, title: "" }}
         />
+        <Stack.Screen
+          name="EditProfile"
+          component={EditProfileScreen}
+          options={{ headerShown: true, title: "" }}
+        /> 
+        
 
         {/* Navegación principal con tabs */}
         <Stack.Screen name="Atras" component={Atras} />

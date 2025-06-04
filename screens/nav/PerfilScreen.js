@@ -20,23 +20,22 @@ export default function PerfilScreen({ navigation }) {
     foto: require("../../assets/Background_Login.png"),
   };
 
- const cerrarSesion = () => {
-  Alert.alert("Cerrar sesión", "¿Estás seguro?", [
-    {
-      text: "Cancelar",
-      style: "cancel",
-    },
-    {
-      text: "Salir",
-      style: "destructive",
-      onPress: () => {
-        // Aquí puedes limpiar tokens, AsyncStorage, etc.
-        navigation.replace("Login"); // ✅ lleva al login limpiamente
+  const cerrarSesion = () => {
+    Alert.alert("Cerrar sesión", "¿Estás seguro?", [
+      {
+        text: "Cancelar",
+        style: "cancel",
       },
-    },
-  ]);
-};
-
+      {
+        text: "Salir",
+        style: "destructive",
+        onPress: () => {
+          // Aquí puedes limpiar tokens, AsyncStorage, etc.
+          navigation.replace("Login"); // ✅ lleva al login limpiamente
+        },
+      },
+    ]);
+  };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -56,7 +55,12 @@ export default function PerfilScreen({ navigation }) {
         <Text style={styles.infoValue}>{paciente.genero}</Text>
       </View>
 
-      <TouchableOpacity style={styles.button}>
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => {
+          navigation.navigate("EditProfile");
+        }}
+      >
         <Ionicons name="create-outline" size={20} color="#fff" />
         <Text style={styles.buttonText}>Editar perfil</Text>
       </TouchableOpacity>
@@ -70,13 +74,13 @@ export default function PerfilScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
- container: {
-  backgroundColor: "#F0F9F9",
-  alignItems: "center",
-  padding: 24,
-  flexGrow: 1,
-  paddingTop: 100,
-},
+  container: {
+    backgroundColor: "#F0F9F9",
+    alignItems: "center",
+    padding: 24,
+    flexGrow: 1,
+    paddingTop: 100,
+  },
   avatar: {
     width: 110,
     height: 110,
