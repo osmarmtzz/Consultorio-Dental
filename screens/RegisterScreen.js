@@ -5,40 +5,52 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  ImageBackground,
   KeyboardAvoidingView,
   Platform,
   Modal,
   Pressable,
+  ScrollView,
+  StatusBar,
 } from "react-native";
 import * as Animatable from "react-native-animatable";
 import { Ionicons } from "@expo/vector-icons";
+import { ImageBackground } from "react-native";
+
 
 export default function RegisterScreen({ navigation }) {
   const [nombre, setNombre] = useState("");
   const [apellidos, setApellidos] = useState("");
+  const [genero, setGenero] = useState("");
+  const [fechaNacimiento, setFechaNacimiento] = useState("");
   const [telefono, setTelefono] = useState("");
+  const [direccion, setDireccion] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showModal, setShowModal] = useState(false);
 
   return (
-    <ImageBackground
-      source={require("../assets/Background_Login.png")}
-      style={styles.background}
-      blurRadius={3}
+     <ImageBackground
+    source={require("../assets/Background_Login.png")} // o la ruta que uses
+    style={styles.backgroundImage}
+    resizeMode="cover"
+  >
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
-      <KeyboardAvoidingView
-        style={styles.container}
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
+      <StatusBar barStyle="d  ark-content" backgroundColor="#E6F0FA" />
+      <ScrollView
+        contentContainerStyle={styles.scrollContainer}
+        showsVerticalScrollIndicator={false}
       >
         <Animatable.View animation="fadeInDown" style={styles.header}>
+          <Ionicons name="medkit" size={64} color="#0077C2" />
           <Text style={styles.title}>Crear cuenta</Text>
           <Text style={styles.subtitle}>Consultorio Dental</Text>
         </Animatable.View>
 
-        <Animatable.View animation="fadeInUp" delay={300} style={styles.form}>
+        <Animatable.View animation="fadeInUp" delay={200} style={styles.form}>
           <Text style={styles.label}>Nombre(s)</Text>
           <TextInput
             placeholder="Juan"
@@ -55,13 +67,37 @@ export default function RegisterScreen({ navigation }) {
             onChangeText={setApellidos}
           />
 
-          <Text style={styles.label}>No. Teléfono</Text>
+          <Text style={styles.label}>Fecha de Nacimiento</Text>
+          <TextInput
+            placeholder="YYYY-MM-DD"
+            style={styles.input}
+            value={fechaNacimiento}
+            onChangeText={setFechaNacimiento}
+          />
+
+          <Text style={styles.label}>Género</Text>
+          <TextInput
+            placeholder="Masculino / Femenino"
+            style={styles.input}
+            value={genero}
+            onChangeText={setGenero}
+          />
+
+          <Text style={styles.label}>Teléfono</Text>
           <TextInput
             placeholder="1234567890"
             style={styles.input}
             keyboardType="phone-pad"
             value={telefono}
             onChangeText={setTelefono}
+          />
+
+          <Text style={styles.label}>Dirección</Text>
+          <TextInput
+            placeholder="Calle 123"
+            style={styles.input}
+            value={direccion}
+            onChangeText={setDireccion}
           />
 
           <Text style={styles.label}>Correo electrónico</Text>
@@ -79,7 +115,7 @@ export default function RegisterScreen({ navigation }) {
               <Ionicons
                 name="information-circle-outline"
                 size={18}
-                color="#1A73E8"
+                color="#0077C2"
               />
             </TouchableOpacity>
           </View>
@@ -104,7 +140,6 @@ export default function RegisterScreen({ navigation }) {
           <TouchableOpacity
             style={styles.button}
             onPress={() => {
-              // Validación mínima opcional
               if (password !== confirmPassword) {
                 alert("Las contraseñas no coinciden");
                 return;
@@ -119,109 +154,109 @@ export default function RegisterScreen({ navigation }) {
             <Text style={styles.link}>¿Ya tienes cuenta? Inicia sesión</Text>
           </TouchableOpacity>
         </Animatable.View>
+      </ScrollView>
 
-        {/* MODAL */}
-        <Modal
-          animationType="slide"
-          transparent={true}
-          visible={showModal}
-          onRequestClose={() => setShowModal(false)}
-        >
-          <View style={styles.modalContainer}>
-            <View style={styles.modalContent}>
-              <Text style={styles.modalTitle}>Requisitos de contraseña</Text>
-              <Text style={styles.modalText}>• Mínimo 8 caracteres</Text>
-              <Text style={styles.modalText}>• Al menos 1 mayúscula</Text>
-              <Text style={styles.modalText}>
-                • Al menos 1 carácter especial (!, @, #, etc.)
-              </Text>
-              <Pressable
-                style={styles.modalButton}
-                onPress={() => setShowModal(false)}
-              >
-                <Text style={styles.modalButtonText}>Entendido</Text>
-              </Pressable>
-            </View>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={showModal}
+        onRequestClose={() => setShowModal(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Requisitos de contraseña</Text>
+            <Text style={styles.modalText}>• Mínimo 8 caracteres</Text>
+            <Text style={styles.modalText}>• Al menos 1 mayúscula</Text>
+            <Text style={styles.modalText}>
+              • Al menos 1 carácter especial (!, @, #, etc.)
+            </Text>
+            <Pressable
+              style={styles.modalButton}
+              onPress={() => setShowModal(false)}
+            >
+              <Text style={styles.modalButtonText}>Entendido</Text>
+            </Pressable>
           </View>
-        </Modal>
-      </KeyboardAvoidingView>
-    </ImageBackground>
+        </View>
+      </Modal>
+    </KeyboardAvoidingView>
+      </ImageBackground>
+
   );
 }
 
 const styles = StyleSheet.create({
-  background: {
-    flex: 1,
-    resizeMode: "cover",
-  },
   container: {
     flex: 1,
-    justifyContent: "center",
-    paddingHorizontal: 30,
+    paddingHorizontal: 25,
+    
   },
+  scrollContainer: {
+    paddingBottom: 40,
+  },
+  backgroundImage: {
+  flex: 1,
+  width: "100%",
+  height: "100%",
+},
+
   header: {
-    marginBottom: 30,
+    marginTop: 50,
+    marginBottom: 20,
     alignItems: "center",
   },
   title: {
-    fontSize: 32,
+    fontSize: 30,
     fontWeight: "700",
-    color: "#1A73E8",
+    color: "#0077C2",
+    marginTop: 10,
   },
   subtitle: {
     fontSize: 16,
-    color: "#555",
-    marginTop: 5,
+    color: "#333",
   },
   form: {
-    backgroundColor: "#fff",
-    padding: 20,
-    borderRadius: 16,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 6,
-    elevation: 3,
+    width: "100%",
   },
   label: {
     fontSize: 14,
-    color: "#333",
+    color: "#444",
     marginBottom: 5,
-    marginTop: 10,
+    marginTop: 15,
   },
   labelRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginTop: 10,
+    marginTop: 15,
     marginBottom: 5,
   },
   input: {
-    height: 44,
-    borderColor: "#ccc",
+    height: 48,
+    borderColor: "#B0C4DE",
     borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    backgroundColor: "#f9f9f9",
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    backgroundColor: "#FFFFFF",
   },
   button: {
-    backgroundColor: "#1A73E8",
-    padding: 14,
-    borderRadius: 10,
-    marginTop: 20,
+    backgroundColor: "#0077C2",
+    padding: 15,
+    borderRadius: 12,
+    marginTop: 25,
     alignItems: "center",
   },
   buttonText: {
-    color: "#fff",
+    color: "#FFFFFF",
     fontSize: 16,
     fontWeight: "600",
   },
   link: {
-    color: "#1A73E8",
-    marginTop: 15,
+    color: "#0077C2",
+    marginTop: 20,
     textAlign: "center",
+    fontWeight: "500",
   },
-  // Modal styles
   modalContainer: {
     flex: 1,
     justifyContent: "center",
@@ -237,7 +272,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "700",
     marginBottom: 10,
-    color: "#1A73E8",
+    color: "#0077C2",
   },
   modalText: {
     fontSize: 14,
@@ -246,7 +281,7 @@ const styles = StyleSheet.create({
   },
   modalButton: {
     marginTop: 20,
-    backgroundColor: "#1A73E8",
+    backgroundColor: "#0077C2",
     borderRadius: 8,
     paddingVertical: 10,
     alignItems: "center",
