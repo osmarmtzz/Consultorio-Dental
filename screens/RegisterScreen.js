@@ -15,6 +15,7 @@ import {
 import * as Animatable from "react-native-animatable";
 import { Ionicons } from "@expo/vector-icons";
 import { ImageBackground } from "react-native";
+import { API_URL } from "../conf"; 
 
 export default function RegisterScreen({ navigation }) {
   const [nombre, setNombre] = useState("");
@@ -145,9 +146,7 @@ export default function RegisterScreen({ navigation }) {
                 }
 
                 try {
-                  const response = await fetch(
-                    "http://192.168.1.9:3000/api/auth/register",
-                    {
+                  const response = await fetch(`${API_URL}/auth/register`, {
                       method: "POST",
                       headers: {
                         "Content-Type": "application/json",

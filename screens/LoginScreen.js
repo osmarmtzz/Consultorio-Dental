@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import {
   View,
   Text,
@@ -8,12 +8,43 @@ import {
   ImageBackground,
   KeyboardAvoidingView,
   Platform,
+  Alert,
 } from "react-native";
 import * as Animatable from "react-native-animatable";
+import { API_URL } from "../conf"; // Asegúrate de tener esto
 
 export default function LoginScreen({ navigation }) {
   const emailInputRef = useRef(null);
   const passwordInputRef = useRef(null);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const iniciarSesion = async () => {
+    if (!email || !password) {
+      Alert.alert("Error", "Por favor, completa todos los campos");
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_URL}/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.status === 200) {
+        Alert.alert("Bienvenido", "Inicio de sesión exitoso");
+        navigation.replace("Atras", { screen: "Citas" });
+      } else {
+        Alert.alert("Error", data.error || "Credenciales inválidas");
+      }
+    } catch (error) {
+      console.error("Error de conexión:", error);
+      Alert.alert("Error", "No se pudo conectar con el servidor");
+    }
+  };
 
   return (
     <ImageBackground
@@ -37,6 +68,8 @@ export default function LoginScreen({ navigation }) {
             style={styles.input}
             keyboardType="email-address"
             ref={emailInputRef}
+            value={email}
+            onChangeText={setEmail}
           />
 
           <Text style={styles.label}>Contraseña</Text>
@@ -45,16 +78,11 @@ export default function LoginScreen({ navigation }) {
             style={styles.input}
             secureTextEntry
             ref={passwordInputRef}
+            value={password}
+            onChangeText={setPassword}
           />
 
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() =>
-              navigation.replace("Atras", {
-                screen: "Citas",
-              })
-            }
-          >
+          <TouchableOpacity style={styles.button} onPress={iniciarSesion}>
             <Text style={styles.buttonText}>Iniciar sesión</Text>
           </TouchableOpacity>
 
