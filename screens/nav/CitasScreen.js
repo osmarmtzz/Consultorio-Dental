@@ -20,16 +20,19 @@ export default function CitasScreen({ navigation }) {
         <Text style={styles.subtitle}>Elige una opción para continuar</Text>
 
         <View style={styles.buttonGroup}>
-          <TouchableOpacity style={styles.button}>
-            <Ionicons name="calendar-outline" size={22} color="#fff" />
+          <TouchableOpacity
+            style={[styles.button, styles.primaryButton]}
+            onPress={() => navigation.navigate("Calendario")}
+          >
+            <Ionicons name="calendar-outline" size={26} color="#fff" />
             <Text style={styles.buttonText}>Ver Calendario</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.button, styles.secondary]}
+            style={[styles.button, styles.secondaryButton]}
             onPress={() => navigation.navigate("Agendar")}
           >
-            <Ionicons name="add-circle-outline" size={22} color="#fff" />
+            <Ionicons name="add-circle-outline" size={26} color="#fff" />
             <Text style={styles.buttonText}>Agendar Nueva Cita</Text>
           </TouchableOpacity>
         </View>
@@ -52,14 +55,14 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   title: {
-    fontSize: 28,
+    fontSize: 30,
     color: "#0B8791",
     fontWeight: "bold",
-    marginBottom: 6,
+    marginBottom: 8,
   },
   subtitle: {
-    fontSize: 16,
-    color: "#555",
+    fontSize: 17,
+    color: "#444",
     marginBottom: 30,
     textAlign: "center",
   },
@@ -69,26 +72,27 @@ const styles = StyleSheet.create({
     gap: 20,
   },
   button: {
-    backgroundColor: "#0B8791",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 14,
-    paddingHorizontal: 20,
-    borderRadius: 14,
+    paddingVertical: 16,
+    borderRadius: 20,
     shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 3 },
-    shadowRadius: 6,
-    elevation: 4,
+    shadowOpacity: 0.2,
+    shadowOffset: { width: 0, height: 4 },
+    shadowRadius: 8,
+    elevation: 5,
   },
-  secondary: {
-    backgroundColor: "#08707B",
+  primaryButton: {
+    backgroundColor: "#0B8791",
+  },
+  secondaryButton: {
+    backgroundColor: "#0A6F79",
   },
   buttonText: {
     color: "#fff",
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: "600",
-    marginLeft: 10,
+    marginLeft: 12,
   },
 });

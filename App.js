@@ -73,8 +73,12 @@ export default function App() {
           name="EditProfile"
           component={EditProfileScreen}
           options={{ headerShown: true, title: "" }}
-        /> 
-        
+        />
+        <Stack.Screen
+          name="Calendario"
+          component={CalendarioScreen}
+          options={{ headerShown: true, title: "Calendario de Citas" }}
+        />
 
         {/* Navegación principal con tabs */}
         <Stack.Screen name="Atras" component={Atras} />
