@@ -18,59 +18,71 @@ export default function CalendarioScreen() {
   const [fechaSeleccionada, setFechaSeleccionada] = useState("");
   const [loading, setLoading] = useState(true);
 
-  // ✅ Convierte "17/06/2025" a "2025-06-17"
+  // ✅ Convierte "DD/MM/YYYY" a "YYYY-MM-DD"
   const convertirFecha = (fechaOriginal) => {
     const [dia, mes, anio] = fechaOriginal.split("/");
     return `${anio}-${mes.padStart(2, "0")}-${dia.padStart(2, "0")}`;
   };
 
-  useEffect(() => {
-    const cargarCitas = async () => {
-      try {
-        const json = await AsyncStorage.getItem("paciente");
-        const paciente = JSON.parse(json);
-        const id = paciente?.ID_Paciente;
-        if (!id) return;
+  const cargarCitas = async () => {
+    try {
+      const json = await AsyncStorage.getItem("paciente");
+      const paciente = JSON.parse(json);
+      const id = paciente?.ID_Paciente;
+      if (!id) return;
 
-        const res = await fetch(`${API_URL}/auth/pagos/${id}`);
-        const data = await res.json();
-        console.log("📅 Datos recibidos:", data);
+      const res = await fetch(`${API_URL}/auth/pagos/${id}`);
+      const data = await res.json();
 
-        const hoy = new Date().toISOString().split("T")[0];
-        const futuras = [];
-        const marcadosTmp = {};
+      const hoy = new Date().toISOString().split("T")[0];
+      const futuras = [];
+      const marcadosTmp = {};
 
-        data.forEach((cita) => {
-          if (!cita.Fecha) return;
+      data.forEach((cita) => {
+        if (!cita.Fecha) return;
 
-          const fechaISO = convertirFecha(cita.Fecha);
-          cita.Fecha = fechaISO;
+        const fechaISO = convertirFecha(cita.Fecha);
+        cita.Fecha = fechaISO;
 
-          if (fechaISO >= hoy) {
-            futuras.push(cita);
-            marcadosTmp[fechaISO] = {
-              marked: true,
-              dotColor: "#0077CC", // azul fuerte
-            };
-          }
+        if (fechaISO >= hoy) {
+          futuras.push(cita);
+          marcadosTmp[fechaISO] = {
+            marked: true,
+            dotColor: "#0077CC",
+          };
+        }
+      });
+
+      setCitas(futuras);
+      setMarcados(marcadosTmp);
+
+      if (fechaSeleccionada) {
+        const filtradas = futuras.filter((c) => {
+          const fechaCita = new Date(c.Fecha).toISOString().split("T")[0];
+          return fechaCita === fechaSeleccionada;
         });
-
-        setCitas(futuras);
-        setMarcados(marcadosTmp);
-      } catch (error) {
-        console.error("❌ Error al cargar citas:", error);
-      } finally {
-        setLoading(false);
+        setCitasDelDia(filtradas);
       }
-    };
+    } catch (error) {
+      console.error("❌ Error al cargar citas:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    cargarCitas();
-  }, []);
+  useEffect(() => {
+    cargarCitas(); // Carga inicial
+    const intervalo = setInterval(cargarCitas, 1000); // 🔁 actualiza cada segundo
+    return () => clearInterval(intervalo);
+  }, [fechaSeleccionada]);
 
   const seleccionarFecha = (day) => {
     const fecha = day.dateString;
     setFechaSeleccionada(fecha);
-    const filtradas = citas.filter((c) => c.Fecha === fecha);
+    const filtradas = citas.filter((c) => {
+      const fechaCita = new Date(c.Fecha).toISOString().split("T")[0];
+      return fechaCita === fecha;
+    });
     setCitasDelDia(filtradas);
   };
 

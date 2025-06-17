@@ -182,16 +182,17 @@ export default function AgendarCitaScreen({ navigation }) {
         </View>
       </Modal>
 
-      <DateTimePickerModal
-        isVisible={showDatePicker}
-        mode="date"
-        onConfirm={(d) => {
-          setFecha(d);
-          setShowDatePicker(false);
-        }}
-        onCancel={() => setShowDatePicker(false)}
-        maximumDate={new Date()}
-      />
+     <DateTimePickerModal
+  isVisible={showDatePicker}
+  mode="date"
+  onConfirm={(d) => {
+    setFecha(d);
+    setShowDatePicker(false);
+  }}
+  onCancel={() => setShowDatePicker(false)}
+  minimumDate={new Date()} // ⬅️ permite solo fechas a partir de hoy
+/>
+
 
       <DateTimePickerModal
         isVisible={showTimePicker}
