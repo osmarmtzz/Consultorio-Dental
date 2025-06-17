@@ -38,42 +38,51 @@ export default function PagosScreen() {
     }, [cargarDatos])
   );
 
-  const realizarPago = (cita) => {
-    Alert.alert(
-      "Confirmar pago",
-      `¿Deseas registrar el pago de $500 MXN para: ${cita.servicio}?`,
-      [
-        {
-          text: "Cancelar",
-          style: "cancel",
-        },
-        {
-          text: "Pagar",
-          onPress: async () => {
-            try {
-              await fetch(`${API_URL}/auth/registrar-pago`, {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                  idPaciente: cita.ID_Paciente,
-                  fechaPago: cita.Fecha,
-                  concepto: cita.servicio,
-                  monto: 500,
-                }),
-              });
+const realizarPago = (cita) => {
+  Alert.alert(
+    "Confirmar pago",
+    `¿Deseas registrar el pago de $500 MXN para: ${cita.servicio}?`,
+    [
+      {
+        text: "Cancelar",
+        style: "cancel",
+      },
+      {
+        text: "Pagar",
+        onPress: async () => {
+          try {
+            await fetch(`${API_URL}/auth/registrar-pago`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                idPaciente: cita.ID_Paciente,
+                fechaPago: cita.Fecha,
+                concepto: cita.servicio,
+                monto: 500,
+              }),
+            });
 
-              Alert.alert("✅ Pago realizado");
-              cargarDatos(); // 👈 Recarga después de pagar
-            } catch (e) {
-              Alert.alert("Error", "No se pudo registrar el pago");
-            }
-          },
+            // 🔄 Actualiza el estado local de esa cita sin recargar toda la pantalla
+            setCitas((prev) =>
+              prev.map((c) =>
+                c.ID_Cita === cita.ID_Cita
+                  ? { ...c, estado: "Pagado" } // ⬅️ cambia solo el estado
+                  : c
+              )
+            );
+
+            Alert.alert("✅ Pago realizado");
+          } catch (e) {
+            Alert.alert("Error", "No se pudo registrar el pago");
+          }
         },
-      ]
-    );
-  };
+      },
+    ]
+  );
+};
+
 
   return (
     <ScrollView contentContainerStyle={styles.container}>

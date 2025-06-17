@@ -25,50 +25,45 @@ export default function CalendarioScreen() {
   };
 
   const cargarCitas = async () => {
-    try {
-      const json = await AsyncStorage.getItem("paciente");
-      const paciente = JSON.parse(json);
-      const id = paciente?.ID_Paciente;
-      if (!id) return;
+  try {
+    const json = await AsyncStorage.getItem("paciente");
+    const paciente = JSON.parse(json);
+    const id = paciente?.ID_Paciente;
+    if (!id) return;
 
-      const res = await fetch(`${API_URL}/auth/pagos/${id}`);
-      const data = await res.json();
+    const res = await fetch(`${API_URL}/auth/pagos/${id}`);
+    const data = await res.json();
 
-      const hoy = new Date().toISOString().split("T")[0];
-      const futuras = [];
-      const marcadosTmp = {};
+    const marcadosTmp = {};
+    data.forEach((cita) => {
+      if (!cita.Fecha) return;
 
-      data.forEach((cita) => {
-        if (!cita.Fecha) return;
+      const fechaISO = convertirFecha(cita.Fecha);
+      cita.Fecha = fechaISO;
 
-        const fechaISO = convertirFecha(cita.Fecha);
-        cita.Fecha = fechaISO;
+      marcadosTmp[fechaISO] = {
+        marked: true,
+        dotColor: "#0077CC",
+      };
+    });
 
-        if (fechaISO >= hoy) {
-          futuras.push(cita);
-          marcadosTmp[fechaISO] = {
-            marked: true,
-            dotColor: "#0077CC",
-          };
-        }
+    setCitas(data);
+    setMarcados(marcadosTmp);
+
+    if (fechaSeleccionada) {
+      const filtradas = data.filter((c) => {
+        const fechaCita = new Date(c.Fecha).toISOString().split("T")[0];
+        return fechaCita === fechaSeleccionada;
       });
-
-      setCitas(futuras);
-      setMarcados(marcadosTmp);
-
-      if (fechaSeleccionada) {
-        const filtradas = futuras.filter((c) => {
-          const fechaCita = new Date(c.Fecha).toISOString().split("T")[0];
-          return fechaCita === fechaSeleccionada;
-        });
-        setCitasDelDia(filtradas);
-      }
-    } catch (error) {
-      console.error("❌ Error al cargar citas:", error);
-    } finally {
-      setLoading(false);
+      setCitasDelDia(filtradas);
     }
-  };
+  } catch (error) {
+    console.error("❌ Error al cargar citas:", error);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   useEffect(() => {
     cargarCitas(); // Carga inicial
