@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import * as Animatable from "react-native-animatable";
 import { API_URL } from "../conf"; // Asegúrate de tener esto
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function LoginScreen({ navigation }) {
   const emailInputRef = useRef(null);
@@ -36,6 +37,7 @@ export default function LoginScreen({ navigation }) {
 
       if (response.status === 200) {
         Alert.alert("Bienvenido", "Inicio de sesión exitoso");
+        await AsyncStorage.setItem("paciente", JSON.stringify(data.usuario));
         navigation.replace("Atras", { screen: "Citas" });
       } else {
         Alert.alert("Error", data.error || "Credenciales inválidas");

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -8,58 +8,78 @@ import {
   ScrollView,
   Alert,
 } from "react-native";
+
 import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useFocusEffect } from "@react-navigation/native";
+
 
 export default function PerfilScreen({ navigation }) {
-  const paciente = {
-    nombre: "Juan Pérez",
-    correo: "juanperez@example.com",
-    telefono: "+52 449 123 4567",
-    nacimiento: "1990-03-12",
-    genero: "Masculino",
-    foto: require("../../assets/Background_Login.png"),
+  const [paciente, setPaciente] = useState(null);
+
+ useFocusEffect(
+  useCallback(() => {
+    const cargarPaciente = async () => {
+      try {
+        const json = await AsyncStorage.getItem("paciente");
+        const data = JSON.parse(json);
+        setPaciente(data);
+      } catch (error) {
+        console.error("Error cargando paciente:", error);
+      }
+    };
+    cargarPaciente();
+  }, []) // aquí va el array de dependencias (vacío si solo se recarga al volver)
+);
+
+  const cerrarSesion = async () => {
+    await AsyncStorage.removeItem("paciente");
+    navigation.replace("Login");
   };
 
-  const cerrarSesion = () => {
-    Alert.alert("Cerrar sesión", "¿Estás seguro?", [
-      {
-        text: "Cancelar",
-        style: "cancel",
-      },
-      {
-        text: "Salir",
-        style: "destructive",
-        onPress: () => {
-          // Aquí puedes limpiar tokens, AsyncStorage, etc.
-          navigation.replace("Login"); // ✅ lleva al login limpiamente
-        },
-      },
-    ]);
-  };
+  if (!paciente) {
+    return (
+      <View style={styles.container}>
+        <Text>Cargando perfil...</Text>
+      </View>
+    );
+  }
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Image source={paciente.foto} style={styles.avatar} />
+      <Image
+        source={require("../../assets/Background_Login.png")}
+        style={styles.avatar}
+      />
+      <Text style={styles.nombre}>{paciente.Nombre}</Text>
+      <Text style={styles.label}>{paciente.Correo}</Text>
+      <Text style={styles.label}>{paciente.Telefono}</Text>
 
-      <Text style={styles.nombre}>{paciente.nombre}</Text>
-      <Text style={styles.label}>{paciente.correo}</Text>
-      <Text style={styles.label}>{paciente.telefono}</Text>
+      <View style={styles.infoBox}>
+        <Text style={styles.infoTitle}>Celular</Text>
+        <Text style={styles.infoValue}>{paciente.Celular}</Text>
+      </View>
 
       <View style={styles.infoBox}>
         <Text style={styles.infoTitle}>Fecha de nacimiento</Text>
-        <Text style={styles.infoValue}>{paciente.nacimiento}</Text>
+        <Text style={styles.infoValue}>
+          {new Date(paciente.Fecha_nacimiento).toLocaleDateString("es-MX")}
+        </Text>
       </View>
 
       <View style={styles.infoBox}>
         <Text style={styles.infoTitle}>Género</Text>
-        <Text style={styles.infoValue}>{paciente.genero}</Text>
+        <Text style={styles.infoValue}>{paciente.Genero}</Text>
+      </View>
+
+      <View style={styles.infoBox}>
+        <Text style={styles.infoTitle}>Dirección</Text>
+        <Text style={styles.infoValue}>{paciente.Direccion}</Text>
       </View>
 
       <TouchableOpacity
         style={styles.button}
-        onPress={() => {
-          navigation.navigate("EditProfile");
-        }}
+        onPress={() => navigation.navigate("EditProfile")}
       >
         <Ionicons name="create-outline" size={20} color="#fff" />
         <Text style={styles.buttonText}>Editar perfil</Text>
