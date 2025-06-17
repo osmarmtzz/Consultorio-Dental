@@ -1,69 +1,118 @@
-import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
+import React, { useCallback, useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  Alert,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useFocusEffect } from "@react-navigation/native"; // 👈
+import { API_URL } from "../../conf";
 
 export default function PagosScreen() {
-  const citas = [
-    {
-      id: 1,
-      paciente: "Juan Pérez",
-      doctor: "Dra. María López",
-      servicio: "Limpieza dental profesional",
-      fecha: "2025-06-10",
-      hora: "10:30 AM",
-      costo: "$500 MXN",
-      estado: "Pendiente de pago",
-    },
-    {
-      id: 2,
-      paciente: "Ana Rodríguez",
-      doctor: "Dr. Carlos Méndez",
-      servicio: "Blanqueamiento dental",
-      fecha: "2025-06-08",
-      hora: "04:00 PM",
-      costo: "$1200 MXN",
-      estado: "Pagado",
-    },
-  ];
+  const [citas, setCitas] = useState([]);
 
-  const realizarPago = (servicio) => {
-    alert(`Redirigiendo a pago para: ${servicio}`);
-    // Aquí va la lógica real de pago
+  const cargarDatos = useCallback(async () => {
+    try {
+      const json = await AsyncStorage.getItem("paciente");
+      const paciente = JSON.parse(json);
+      const id = paciente?.ID_Paciente;
+
+      if (!id) return;
+
+      const res = await fetch(`${API_URL}/auth/pagos/${id}`);
+      const data = await res.json();
+      setCitas(data);
+    } catch (error) {
+      console.error("Error al cargar citas:", error);
+      Alert.alert("Error", "No se pudieron cargar los pagos");
+    }
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      cargarDatos(); // 👈 Se ejecuta cuando se entra a esta pantalla
+    }, [cargarDatos])
+  );
+
+  const realizarPago = (cita) => {
+    Alert.alert(
+      "Confirmar pago",
+      `¿Deseas registrar el pago de $500 MXN para: ${cita.servicio}?`,
+      [
+        {
+          text: "Cancelar",
+          style: "cancel",
+        },
+        {
+          text: "Pagar",
+          onPress: async () => {
+            try {
+              await fetch(`${API_URL}/auth/registrar-pago`, {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  idPaciente: cita.ID_Paciente,
+                  fechaPago: cita.Fecha,
+                  concepto: cita.servicio,
+                  monto: 500,
+                }),
+              });
+
+              Alert.alert("✅ Pago realizado");
+              cargarDatos(); // 👈 Recarga después de pagar
+            } catch (e) {
+              Alert.alert("Error", "No se pudo registrar el pago");
+            }
+          },
+        },
+      ]
+    );
   };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>Resumen de Citas y Pagos</Text>
 
-      {citas.map((cita) => (
-        <View key={cita.id} style={styles.card}>
-          <Ionicons name="calendar-outline" size={26} color="#0B8791" />
-          <Text style={styles.info}>Paciente: {cita.paciente}</Text>
-          <Text style={styles.info}>Doctor(a): {cita.doctor}</Text>
-          <Text style={styles.info}>Servicio: {cita.servicio}</Text>
-          <Text style={styles.info}>Fecha: {cita.fecha}</Text>
-          <Text style={styles.info}>Hora: {cita.hora}</Text>
-          <Text style={styles.info}>Costo: {cita.costo}</Text>
-          <Text
-            style={[
-              styles.info,
-              { color: cita.estado === "Pagado" ? "#2E7D32" : "#E65100" },
-            ]}
-          >
-            Estado: {cita.estado}
-          </Text>
-
-          {cita.estado === "Pendiente de pago" && (
-            <TouchableOpacity
-              style={styles.pagarBtn}
-              onPress={() => realizarPago(cita.servicio)}
+      {citas.length === 0 ? (
+        <Text style={{ marginTop: 30, color: "#888" }}>
+          No tienes citas registradas aún.
+        </Text>
+      ) : (
+        citas.map((cita) => (
+          <View key={cita.ID_Cita} style={styles.card}>
+            <Ionicons name="calendar-outline" size={26} color="#0B8791" />
+            <Text style={styles.info}>Paciente: {cita.paciente}</Text>
+            <Text style={styles.info}>Servicio: {cita.servicio}</Text>
+            <Text style={styles.info}>Fecha: {cita.Fecha}</Text>
+            <Text style={styles.info}>Hora: {cita.Hora}</Text>
+            <Text style={styles.info}>Monto: $500.00 MXN</Text>
+            <Text
+              style={[
+                styles.info,
+                { color: cita.estado === "Pagado" ? "#2E7D32" : "#E65100" },
+              ]}
             >
-              <Ionicons name="card-outline" size={20} color="#fff" />
-              <Text style={styles.pagarTexto}>Pagar Ahora</Text>
-            </TouchableOpacity>
-          )}
-        </View>
-      ))}
+              Estado: {cita.estado}
+            </Text>
+
+            {cita.estado === "Pendiente de pago" && (
+              <TouchableOpacity
+                style={styles.pagarBtn}
+                onPress={() => realizarPago(cita)}
+              >
+                <Ionicons name="card-outline" size={20} color="#fff" />
+                <Text style={styles.pagarTexto}>Pagar Ahora</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        ))
+      )}
     </ScrollView>
   );
 }
